@@ -74,7 +74,7 @@ void setup() {
 
 void loop() {
 
-  // if there’s data available, read a packet
+  // if there’s UDP data available, read a packet
   int packetSize = udp.parsePacket();
   if(packetSize>0) {
     udp.read(buf1, bufferSize);
@@ -82,12 +82,11 @@ void loop() {
     Serial.write(buf1, packetSize);
   }
 
-  if(Serial.available()) {
+ /* if(Serial.available()) {
 
     // read the data until pause:
-    //Serial.println("sa");
-    
-    while(1) {
+    // Serial.println("sa");
+      while(1) {
       if(Serial.available()) {
         buf2[i2] = (char)Serial.read(); // read char from UART
         if(i2<bufferSize-1) {
@@ -110,5 +109,5 @@ void loop() {
     udp.endPacket();
     i2 = 0;
   }
-  
+*/
 }
