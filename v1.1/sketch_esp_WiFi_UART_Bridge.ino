@@ -16,14 +16,18 @@
 #define packTimeout 5 // ms (if nothing more on UART, then send packet)
 #define bufferSize 8192
 
+//#define STATIC_IP_ADDR
+
 // For STATION mode:
 const char *ssid = "myrouter";  // Your ROUTER SSID
 const char *pw = "password"; // and WiFi PASSWORD
-const int port = 9876;
+const int port = 10120; // 10110 is official TCP and UDP NMEA 0183 Navigational Data Port
 
 //////////////////////////////////////////////////////////////////////////
 
+// A UDP instance to let us send and receive packets over UDP
 WiFiUDP udp;
+
 IPAddress remoteIp;
 
 uint8_t buf1[bufferSize];
@@ -31,6 +35,12 @@ uint8_t i1=0;
 
 uint8_t buf2[bufferSize];
 uint8_t i2=0;
+
+#ifdef STATIC_IP_ADDR
+IPAddress staticIP(192,168,0,25);
+IPAddress gateway(192,168,0,1);
+IPAddress subnet(255,255,255,0);
+#endif
 
 
 void setup() {
@@ -48,6 +58,9 @@ void setup() {
   // STATION mode (ESP connects to router and gets an IP)
   WiFi.mode(WIFI_STA);
   WiFi.begin(ssid, pw);
+  #ifdef STATIC_IP_ADDR
+  WiFi.config(staticIP, gateway, subnet);
+  #endif
   while (WiFi.status() != WL_CONNECTED) {
     delay(100);
   }
