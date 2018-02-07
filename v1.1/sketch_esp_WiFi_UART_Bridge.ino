@@ -13,27 +13,28 @@
 #define GPS_BAUD 9600
 #define PLOTTER_BAUD 4800
 #define packTimeout 5 // ms (if nothing more on UART, then send packet)
-#define bufferSize 8192
+#define bufferSize 255
 
 //#define STATIC_IP_ADDR
 
-// For STATION mode:
+// For WiFi Station
 const char *ssid = "myrouter";  // Your ROUTER SSID
 const char *pw = "password"; // and WiFi PASSWORD
-const int port = 10120; // 10110 is official TCP and UDP NMEA 0183 Navigational Data Port
-
 #ifdef STATIC_IP_ADDR
 IPAddress staticIP(192,168,0,25);
 IPAddress gateway(192,168,0,1);
 IPAddress subnet(255,255,255,0);
 #endif
 
+// For UDP connection
+const unsigned int localUdpPort = 10120; // 10110 is official TCP and UDP NMEA 0183 Navigational Data Port
+const unsigned int remoteUdpPort = 10120;
+IPAddress remoteUDPIp(192,168,0,255);
+
 //////////////////////////////////////////////////////////////////////////
 
 // A UDP instance to let us send and receive packets over UDP
 WiFiUDP udp;
-
-IPAddress remoteIp;
 
 uint8_t buf1[bufferSize];
 uint8_t i1=0;
@@ -64,7 +65,7 @@ void setup() {
   Serial.println("");
   Serial.printf("WiFi connected with local IP address: ");  
   Serial.println(WiFi.localIP());
-  udp.begin(port); // start UDP server 
+  udp.begin(localUdpPort); // start UDP server 
 
   // swap serial port from USB to attached GPS: GPIO15 (TX) and GPIO13 (RX)
   Serial.swap();
@@ -76,9 +77,8 @@ void loop() {
   // if there’s data available, read a packet
   int packetSize = udp.parsePacket();
   if(packetSize>0) {
-    remoteIp = udp.remoteIP(); // store the ip of the remote device
     udp.read(buf1, bufferSize);
-    // now send to UART:
+    // and then send it to GPS:
     Serial.write(buf1, packetSize);
   }
 
@@ -105,7 +105,7 @@ void loop() {
     }
 
     // now send to WiFi:  
-    udp.beginPacket(remoteIp, port); // remote IP and port
+    udp.beginPacket(remoteUDPIp, remoteUdpPort); // remote UDP IP and port
     udp.write(buf2, i2);
     udp.endPacket();
     i2 = 0;
