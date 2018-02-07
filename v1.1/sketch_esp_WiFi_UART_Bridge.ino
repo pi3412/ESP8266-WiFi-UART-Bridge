@@ -1,6 +1,5 @@
-// ESP8266 WiFi <-> UART Bridge
-// by RoboRemo
-// www.roboremo.com
+// ESP8266 NMEA 0183 bridge and filter for GPS data
+// by Pierre Schmitz
 
 // Disclaimer: Don't use this application for life support systems,
 // navigation or any other situations where system failure may affect
@@ -23,6 +22,12 @@ const char *ssid = "myrouter";  // Your ROUTER SSID
 const char *pw = "password"; // and WiFi PASSWORD
 const int port = 10120; // 10110 is official TCP and UDP NMEA 0183 Navigational Data Port
 
+#ifdef STATIC_IP_ADDR
+IPAddress staticIP(192,168,0,25);
+IPAddress gateway(192,168,0,1);
+IPAddress subnet(255,255,255,0);
+#endif
+
 //////////////////////////////////////////////////////////////////////////
 
 // A UDP instance to let us send and receive packets over UDP
@@ -35,13 +40,6 @@ uint8_t i1=0;
 
 uint8_t buf2[bufferSize];
 uint8_t i2=0;
-
-#ifdef STATIC_IP_ADDR
-IPAddress staticIP(192,168,0,25);
-IPAddress gateway(192,168,0,1);
-IPAddress subnet(255,255,255,0);
-#endif
-
 
 void setup() {
 
@@ -64,7 +62,7 @@ void setup() {
     Serial.print(".");
   }
   Serial.println("");
-  Serial.printf("WiFi connected with IP address: ");  
+  Serial.printf("WiFi connected with local IP address: ");  
   Serial.println(WiFi.localIP());
   udp.begin(port); // start UDP server 
 
