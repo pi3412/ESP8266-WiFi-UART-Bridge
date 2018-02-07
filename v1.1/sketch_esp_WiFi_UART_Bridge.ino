@@ -47,14 +47,12 @@ void setup() {
 
   delay(500);
   
-   // start 1st serial connection to GPS
+   // start 1st serial connection to dump WIFI status messages over USB
   Serial.begin(GPS_BAUD);
-  // swap serial port from USB to attached GPS: GPIO15 (TX) and GPIO13 (RX)
-  Serial.swap();
   
   // start 2nd serial connection to GPS Plotter via pin GPIO2 (no receive possible)
   Serial1.begin(PLOTTER_BAUD); 
-    
+
   // STATION mode (ESP connects to router and gets an IP)
   WiFi.mode(WIFI_STA);
   WiFi.begin(ssid, pw);
@@ -63,11 +61,15 @@ void setup() {
   #endif
   while (WiFi.status() != WL_CONNECTED) {
     delay(100);
+    Serial.print(".");
   }
-
-  Serial.println("Starting UDP Server");
+  Serial.println("");
+  Serial.printf("WiFi connected with IP address: ");  
+  Serial.println(WiFi.localIP());
   udp.begin(port); // start UDP server 
 
+  // swap serial port from USB to attached GPS: GPIO15 (TX) and GPIO13 (RX)
+  Serial.swap();
 }
 
 
